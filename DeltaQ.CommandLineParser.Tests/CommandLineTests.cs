@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using FluentAssertions;
-using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
-using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
+
 using NUnit.Framework;
+
+using FluentAssertions;
 
 namespace DeltaQ.CommandLineParser.Tests
 {
@@ -388,6 +389,564 @@ namespace DeltaQ.CommandLineParser.Tests
 			result!.GetType().GetFields().Where(
 				f => (f.Name != argumentSwitch) && string.Equals(f.Name, argumentSwitch, StringComparison.OrdinalIgnoreCase))
 				.Single().GetValue(result).Should().BeNull();
+		}
+
+#pragma warning disable 649
+		class SwitchesTestClass
+		{
+			[Switch("/A")] public bool A;
+			[Switch("/B")] public int B;
+		}
+#pragma warning restore 649
+
+		[Test]
+		public void ShowUsage_should_include_switches()
+		{
+			// Arrange
+			var bufferWriter = new StringWriter();
+
+			var buffer = bufferWriter.GetStringBuilder();
+
+			var sut = new CommandLine();
+
+			// Act
+			sut.ShowUsage<SwitchesTestClass>(bufferWriter, binaryName: "TestBinary");
+
+			// Assert
+			bufferWriter.ToString().Should().Be("usage: TestBinary [/A] [/B [/B [..]]\n");
+		}
+
+#pragma warning disable 649
+		class ArgumentsTestClass
+		{
+			public struct Structure
+			{
+				public int X, Y;
+			}
+
+			[Argument("/A")] public bool A;
+			[Argument("/B", Properties = ["X", "Y"])] public Structure B;
+			[Argument("/C")] public List<int> C = new List<int>();
+			[Argument("/D", MultipleItemDelimiters = ":")] public List<int> D = new List<int>();
+			[Argument("/E", Properties = ["X", "Y"])] public List<Structure> E = new List<Structure>();
+
+			[Argument("/R", IsRemainder = true, Description = "This argument gathers everything remaining on the command-line.")] public string? R;
+		}
+#pragma warning restore 649
+
+		[Test]
+		public void ShowUsage_should_include_arguments()
+		{
+			// Arrange
+			var bufferWriter = new StringWriter();
+
+			var buffer = bufferWriter.GetStringBuilder();
+
+			var sut = new CommandLine();
+
+			// Act
+			sut.ShowUsage<ArgumentsTestClass>(bufferWriter, binaryName: "TestBinary");
+
+			// Assert
+			bufferWriter.ToString().Should().Be(@"usage: TestBinary [/A <value>] [/B <X> <Y>] [/C <value> [/C <value> [..]]] 
+    [/D <value>:<value>:.. [/D <value>:<value>:.. [..]]] [/E <X> <Y> [/E <X> <Y> [..]]] [/R <remainder of command-line>]
+");
+		}
+
+		class BinaryNameTestClass
+		{
+		}
+
+		[TestCase("foo")]
+		[TestCase("bar")]
+		public void ShowUsage_should_use_supplied_binary_name(string binaryName)
+		{
+			// Arrange
+			var bufferWriter = new StringWriter();
+
+			var buffer = bufferWriter.GetStringBuilder();
+
+			var sut = new CommandLine();
+
+			// Act
+			sut.ShowUsage<BinaryNameTestClass>(bufferWriter, binaryName);
+
+			// Assert
+			bufferWriter.ToString().Should().Be($"usage: {binaryName}\n");
+		}
+
+#pragma warning disable 649
+		class FloatingArgumentsTestClass
+		{
+			public struct Structure
+			{
+				public int A;
+				public double B;
+			}
+
+			[Argument(IsFloating = true)]
+			public string First = "Yey";
+
+			[Argument(IsFloating = true, Properties = ["A", "B"])]
+			public Structure Second;
+
+			[Argument(IsFloating = true, MultipleItemDelimiters = "/")]
+			public List<string> Third = new List<string>();
+		}
+#pragma warning restore 649
+
+		[Test]
+		public void ShowUsage_should_format_floating_arguments()
+		{
+			// Arrange
+			var bufferWriter = new StringWriter();
+
+			var buffer = bufferWriter.GetStringBuilder();
+
+			var sut = new CommandLine();
+
+			// Act
+			sut.ShowUsage<FloatingArgumentsTestClass>(bufferWriter, binaryName: "TestBinary");
+
+			// Assert
+			bufferWriter.ToString().Should().Be(@"usage: TestBinary <First> <Second: A> <Second: B> <Third>/<Third>/..
+");
+		}
+
+#pragma warning disable 649
+		class CombinedTestClass
+		{
+			[Switch("/A")] public bool A;
+
+			public struct Structure
+			{
+				public int X, Y;
+			}
+
+			[Argument("/C")] public bool C;
+			[Argument("/D", Properties = ["X", "Y"])] public Structure D;
+
+			[Switch("/B")] public int B;
+
+			[Argument("/E")] public List<int> E = new List<int>();
+
+			[Argument(IsFloating = true)]
+			public string First = "Yey";
+
+			[Argument("/F", MultipleItemDelimiters = ":")] public List<int> F = new List<int>();
+			[Argument("/G)", Properties = ["X", "Y"])] public List<Structure> G = new List<Structure>();
+
+			[Argument(IsFloating = true, Properties = ["A", "B"])]
+			public Structure Second;
+
+			[Argument(IsFloating = true, MultipleItemDelimiters = "/")]
+			public List<string> Third = new List<string>();
+
+			[Argument("/R", IsRemainder = true)] public string? R;
+		}
+#pragma warning restore 649
+
+		[Test]
+		public void ShowUsage_should_format_all_argument_types_combined()
+		{
+			// Arrange
+			var bufferWriter = new StringWriter();
+
+			var buffer = bufferWriter.GetStringBuilder();
+
+			var sut = new CommandLine();
+
+			// Act
+			sut.ShowUsage<CombinedTestClass>(bufferWriter, binaryName: "TestBinary");
+
+			// Assert
+			bufferWriter.ToString().Should().Be(
+@"usage: TestBinary [/A] [/C <value>] [/D <X> <Y>] [/B [/B [..]] [/E <value> [/E <value> [..]]] 
+    [/F <value>:<value>:.. [/F <value>:<value>:.. [..]]] [/G) <X> <Y> [/G) <X> <Y> [..]]] <First> <Second: A> 
+    <Second: B> <Third>/<Third>/.. [/R <remainder of command-line>]
+");
+		}
+
+#pragma warning disable 649
+		class SwitchesTestClassWithDescriptions
+		{
+			[Switch("/A")] public bool A;
+			[Switch("/B")] public int B;
+
+			[Switch("/C", Description = "Description for the switch for C.")] public bool C;
+			[Switch("/D", Description = "And here is a description for the switch for D. Can be specified multiple times.")] public int D;
+		}
+#pragma warning restore 649
+
+
+		[Test]
+		public void ShowUsage_should_produce_detailed_output_including_switch_descriptions()
+		{
+			// Arrange
+			var bufferWriter = new StringWriter();
+
+			var buffer = bufferWriter.GetStringBuilder();
+
+			var sut = new CommandLine();
+
+			// Act
+			sut.ShowUsage<SwitchesTestClassWithDescriptions>(bufferWriter, binaryName: "TestBinary", detailed: true);
+
+			// Assert
+			bufferWriter.ToString().Should().Be(
+@"usage: TestBinary [/A] [/B [/B [..]] [/C] [/D [/D [..]]
+
+/A
+
+/B
+
+/C                              Description for the switch for C.
+
+/D                              And here is a description for the switch for D. Can be specified multiple times.
+");
+		}
+
+#pragma warning disable 649
+		class ArgumentsTestClassWithDescriptions
+		{
+			public struct Structure
+			{
+				public int X, Y;
+			}
+
+			[Argument("/A")] public bool A;
+			[Argument("/B", Properties = ["X", "Y"])] public Structure B;
+			[Argument("/C")] public List<int> C = new List<int>();
+			[Argument("/D", MultipleItemDelimiters = ":")] public List<int> D = new List<int>();
+			[Argument("/E", Properties = ["X", "Y"])] public List<Structure> E = new List<Structure>();
+
+			[Argument("/F", Description = "And here we have the flag /F, which can be either True or False.")] public bool F;
+			[Argument("/G", Properties = ["X", "Y"], Description = "The flag /G requires two arguments to populate X and Y.")] public Structure G;
+			[Argument("/H", Description = "The flag /H can be specified multiple times, each time with an integer value.")] public List<int> H = new List<int>();
+			[Argument("/I", MultipleItemDelimiters = ":", Description = "The flag /I can receive multiple integer values separated by colon characters (:).")] public List<int> I = new List<int>();
+			[Argument("/J", Properties = ["X", "Y"], Description = "The flag /J can be specified multiple times, and each time requires two arguments to populate X and Y.")] public List<Structure> J = new List<Structure>();
+
+			[Argument("/R", IsRemainder = true, Description = "This argument gathers everything remaining on the command-line.")] public string? R;
+		}
+#pragma warning restore 649
+
+		[Test]
+		public void ShowUsage_should_produce_detailed_output_including_argument_descriptions()
+		{
+			// Arrange
+			var bufferWriter = new StringWriter();
+
+			var buffer = bufferWriter.GetStringBuilder();
+
+			var sut = new CommandLine();
+
+			// Act
+			sut.ShowUsage<ArgumentsTestClassWithDescriptions>(bufferWriter, binaryName: "TestBinary", detailed: true);
+
+			// Assert
+			bufferWriter.ToString().Should().Be(
+@"usage: TestBinary [/A <value>] [/B <X> <Y>] [/C <value> [/C <value> [..]]] 
+    [/D <value>:<value>:.. [/D <value>:<value>:.. [..]]] [/E <X> <Y> [/E <X> <Y> [..]]] [/F <value>] [/G <X> <Y>] 
+    [/H <value> [/H <value> [..]]] [/I <value>:<value>:.. [/I <value>:<value>:.. [..]]] [/J <X> <Y> [/J <X> <Y> [..]]] 
+    [/R <remainder of command-line>]
+
+/A <value>
+
+/B <X> <Y>
+
+/C <value> [/C <value> [..]]
+
+/D <value>:<value>:.. [/D <value>:<value>:.. [..]]
+
+/E <X> <Y> [/E <X> <Y> [..]]
+
+/F <value>
+                                And here we have the flag /F, which can be either True or False.
+
+/G <X> <Y>
+                                The flag /G requires two arguments to populate X and Y.
+
+/H <value> [/H <value> [..]]
+                                The flag /H can be specified multiple times, each time with an integer value.
+
+/I <value>:<value>:.. [/I <value>:<value>:.. [..]]
+                                The flag /I can receive multiple integer values separated by colon characters (:).
+
+/J <X> <Y> [/J <X> <Y> [..]]
+                                The flag /J can be specified multiple times, and each time requires two arguments to 
+                                populate X and Y.
+
+/R <remainder of command-line>
+                                This argument gathers everything remaining on the command-line.
+");
+		}
+
+#pragma warning disable 649
+		class FloatingArgumentsTestClassWithDescriptions
+		{
+			public struct Structure
+			{
+				public int A;
+				public double B;
+			}
+
+			[Argument(IsFloating = true)]
+			public string First = "Yey";
+
+			[Argument(IsFloating = true, Properties = ["A", "B"])]
+			public Structure Second;
+
+			[Argument(IsFloating = true, MultipleItemDelimiters = "/")]
+			public List<string> Third = new List<string>();
+
+			[Argument(IsFloating = true, Description = "A simple floating string argument.")]
+			public string Fourth = "Yey";
+
+			[Argument(IsFloating = true, Properties = ["A", "B"], Description = "A floating argument with two properties.")]
+			public Structure Fifth;
+
+			[Argument(IsFloating = true, MultipleItemDelimiters = "/", Description = "A floating argument of list type, using a slash as its item delimeter.")]
+			public List<string> Sixth = new List<string>();
+		}
+#pragma warning restore 649
+
+		[Test]
+		public void ShowUsage_should_produce_detailed_output_including_floating_argument_descriptions()
+		{
+			// Arrange
+			var bufferWriter = new StringWriter();
+
+			var buffer = bufferWriter.GetStringBuilder();
+
+			var sut = new CommandLine();
+
+			// Act
+			sut.ShowUsage<FloatingArgumentsTestClassWithDescriptions>(bufferWriter, binaryName: "TestBinary", detailed: true);
+
+			// Assert
+			bufferWriter.ToString().Should().Be(
+@"usage: TestBinary <First> <Second: A> <Second: B> <Third>/<Third>/.. <Fourth> <Fifth: A> <Fifth: B> <Sixth>/<Sixth>/..
+
+<First>
+
+<Second: A> <Second: B>  
+
+<Third>/<Third>/..
+
+<Fourth>
+                                A simple floating string argument.
+
+<Fifth: A> <Fifth: B>  
+                                A floating argument with two properties.
+
+<Sixth>/<Sixth>/..
+                                A floating argument of list type, using a slash as its item delimeter.
+");
+		}
+
+#pragma warning disable 649
+		class CombinedTestClassWithDescriptions
+		{
+			[Switch("/A")] public bool A;
+
+			public struct Structure
+			{
+				public int X, Y;
+			}
+
+			[Argument("/C")] public bool C;
+			[Argument("/D", Properties = ["X", "Y"])] public Structure D;
+
+			[Switch("/B")] public int B;
+
+			[Argument("/E")] public List<int> E = new List<int>();
+
+			[Argument(IsFloating = true)]
+			public string First = "Yey";
+
+			[Argument("/F", MultipleItemDelimiters = ":")] public List<int> F = new List<int>();
+			[Argument("/G", Properties = ["X", "Y"])] public List<Structure> G = new List<Structure>();
+
+			[Argument(IsFloating = true, Properties = ["A", "B"])]
+			public Structure Second;
+
+			[Argument(IsFloating = true, MultipleItemDelimiters = "/")]
+			public List<string> Third = new List<string>();
+
+			[Switch("/H", Description = "Description for the switch for H.")] public bool H;
+
+			[Argument("/J", Description = "And here we have the flag /K, which can be either True or False.")] public bool J;
+
+			[Argument("/K", Properties = ["X", "Y"], Description = "The flag /G requires two arguments to populate X and Y.")] public Structure K;
+
+			[Switch("/I", Description = "And here is a description for the switch for I. Can be specified multiple times.")] public int I;
+
+			[Argument("/L", Description = "The flag /H can be specified multiple times, each time with an integer value.")] public List<int> L = new List<int>();
+
+			[Argument(IsFloating = true, Description = "A simple floating string argument.")]
+			public string Fourth = "Yey";
+
+			[Argument("/M", MultipleItemDelimiters = ":", Description = "The flag /I can receive multiple integer values separated by colon characters (:).")] public List<int> M = new List<int>();
+			[Argument("/N", Properties = ["X", "Y"], Description = "The flag /J can be specified multiple times, and each time requires two arguments to populate X and Y.")] public List<Structure> N = new List<Structure>();
+
+			[Argument(IsFloating = true, Properties = ["A", "B"], Description = "A floating argument with two properties.")]
+			public Structure Fifth;
+
+			[Argument(IsFloating = true, MultipleItemDelimiters = "/", Description = "A floating argument of list type, using a slash as its item delimeter.")]
+			public List<string> Sixth = new List<string>();
+
+			[Argument("/R", IsRemainder = true, Description = "This argument gathers everything remaining on the command-line.")] public string? R;
+		}
+#pragma warning restore 649
+
+		[Test]
+		public void ShowUsage_should_produce_detailed_output_for_all_argument_types_combined()
+		{
+			// Arrange
+			var bufferWriter = new StringWriter();
+
+			var buffer = bufferWriter.GetStringBuilder();
+
+			var sut = new CommandLine();
+
+			// Act
+			sut.ShowUsage<CombinedTestClassWithDescriptions>(bufferWriter, binaryName: "TestBinary", detailed: true);
+
+			// Assert
+			bufferWriter.ToString().Should().Be(
+@"usage: TestBinary [/A] [/C <value>] [/D <X> <Y>] [/B [/B [..]] [/E <value> [/E <value> [..]]] 
+    [/F <value>:<value>:.. [/F <value>:<value>:.. [..]]] [/G <X> <Y> [/G <X> <Y> [..]]] [/H] [/J <value>] [/K <X> <Y>] 
+    [/I [/I [..]] [/L <value> [/L <value> [..]]] [/M <value>:<value>:.. [/M <value>:<value>:.. [..]]] 
+    [/N <X> <Y> [/N <X> <Y> [..]]] <First> <Second: A> <Second: B> <Third>/<Third>/.. <Fourth> <Fifth: A> <Fifth: B> 
+    <Sixth>/<Sixth>/.. [/R <remainder of command-line>]
+
+/A
+
+/C <value>
+
+/D <X> <Y>
+
+/B
+
+/E <value> [/E <value> [..]]
+
+/F <value>:<value>:.. [/F <value>:<value>:.. [..]]
+
+/G <X> <Y> [/G <X> <Y> [..]]
+
+/H                              Description for the switch for H.
+
+/J <value>
+                                And here we have the flag /K, which can be either True or False.
+
+/K <X> <Y>
+                                The flag /G requires two arguments to populate X and Y.
+
+/I                              And here is a description for the switch for I. Can be specified multiple times.
+
+/L <value> [/L <value> [..]]
+                                The flag /H can be specified multiple times, each time with an integer value.
+
+/M <value>:<value>:.. [/M <value>:<value>:.. [..]]
+                                The flag /I can receive multiple integer values separated by colon characters (:).
+
+/N <X> <Y> [/N <X> <Y> [..]]
+                                The flag /J can be specified multiple times, and each time requires two arguments to 
+                                populate X and Y.
+
+/R <remainder of command-line>
+                                This argument gathers everything remaining on the command-line.
+
+<First>
+
+<Second: A> <Second: B>  
+
+<Third>/<Third>/..
+
+<Fourth>
+                                A simple floating string argument.
+
+<Fifth: A> <Fifth: B>  
+                                A floating argument with two properties.
+
+<Sixth>/<Sixth>/..
+                                A floating argument of list type, using a slash as its item delimeter.
+");
+		}
+
+		[Test]
+		public void ShowUsage_should_sort_parameters_if_requested()
+		{
+			// Arrange
+			var bufferWriter = new StringWriter();
+
+			var buffer = bufferWriter.GetStringBuilder();
+
+			var sut = new CommandLine();
+
+			// Act
+			sut.ShowUsage<CombinedTestClassWithDescriptions>(bufferWriter, binaryName: "TestBinary", detailed: true, sort: true);
+
+			// Assert
+			bufferWriter.ToString().Should().Be(
+@"usage: TestBinary [/A] [/B [/B [..]] [/C <value>] [/D <X> <Y>] [/E <value> [/E <value> [..]]] 
+    [/F <value>:<value>:.. [/F <value>:<value>:.. [..]]] [/G <X> <Y> [/G <X> <Y> [..]]] [/H] [/I [/I [..]] [/J <value>] 
+    [/K <X> <Y>] [/L <value> [/L <value> [..]]] [/M <value>:<value>:.. [/M <value>:<value>:.. [..]]] 
+    [/N <X> <Y> [/N <X> <Y> [..]]] <First> <Second: A> <Second: B> <Third>/<Third>/.. <Fourth> <Fifth: A> <Fifth: B> 
+    <Sixth>/<Sixth>/.. [/R <remainder of command-line>]
+
+/A
+
+/B
+
+/C <value>
+
+/D <X> <Y>
+
+/E <value> [/E <value> [..]]
+
+/F <value>:<value>:.. [/F <value>:<value>:.. [..]]
+
+/G <X> <Y> [/G <X> <Y> [..]]
+
+/H                              Description for the switch for H.
+
+/I                              And here is a description for the switch for I. Can be specified multiple times.
+
+/J <value>
+                                And here we have the flag /K, which can be either True or False.
+
+/K <X> <Y>
+                                The flag /G requires two arguments to populate X and Y.
+
+/L <value> [/L <value> [..]]
+                                The flag /H can be specified multiple times, each time with an integer value.
+
+/M <value>:<value>:.. [/M <value>:<value>:.. [..]]
+                                The flag /I can receive multiple integer values separated by colon characters (:).
+
+/N <X> <Y> [/N <X> <Y> [..]]
+                                The flag /J can be specified multiple times, and each time requires two arguments to 
+                                populate X and Y.
+
+/R <remainder of command-line>
+                                This argument gathers everything remaining on the command-line.
+
+<First>
+
+<Second: A> <Second: B>  
+
+<Third>/<Third>/..
+
+<Fourth>
+                                A simple floating string argument.
+
+<Fifth: A> <Fifth: B>  
+                                A floating argument with two properties.
+
+<Sixth>/<Sixth>/..
+                                A floating argument of list type, using a slash as its item delimeter.
+");
 		}
 	}
 }

@@ -10,6 +10,7 @@ namespace DeltaQ.CommandLineParser
 		public Dictionary<string, SwitchAttribute> Switches = new Dictionary<string, SwitchAttribute>();
 		public Dictionary<string, ArgumentAttribute> Arguments = new Dictionary<string, ArgumentAttribute>();
 		public List<ArgumentAttribute> FloatingArguments = new List<ArgumentAttribute>();
+		public List<ParameterAttribute> AllParameters = new List<ParameterAttribute>();
 
 		public static Configuration Collect(Type type)
 		{
@@ -39,6 +40,8 @@ namespace DeltaQ.CommandLineParser
 						}
 						else if (attribute is ParameterAttribute parameterAttribute)
 						{
+							configuration.AllParameters.Add(parameterAttribute);
+
 							parameterAttribute.IsListType = IsListType(memberType);
 							parameterAttribute.AttachedToMember = memberInfo;
 
@@ -59,6 +62,9 @@ namespace DeltaQ.CommandLineParser
 							{
 								if (string.IsNullOrEmpty(argumentAttribute.Switch) && !argumentAttribute.IsFloating)
 									argumentAttribute.Switch = "/" + memberInfo.Name;
+
+								if (argumentAttribute.IsFloating)
+									argumentAttribute.FloatingArgumentName = memberInfo.Name;
 
 								if (argumentAttribute.IsRemainder)
 								{

@@ -6,7 +6,7 @@ namespace DeltaQ.CommandLineParser
 {
 	[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = true)]
 	public class ArgumentAttribute : ParameterAttribute
-{
+	{
 		public string? ShortName { get; set; }
 		public bool IsRequired { get; set; }
 		public bool IsFloating { get; set; }
@@ -15,6 +15,8 @@ namespace DeltaQ.CommandLineParser
 		public string? MultipleItemDelimiters { get; set; }
 
 		internal char[]? DelimiterChars;
+
+		internal string? FloatingArgumentName;
 
 		internal bool HasProperties => (Properties != null) && (Properties.Length > 0);
 		internal bool HasDelimiterChars => (DelimiterChars != null) && (DelimiterChars.Length > 0);

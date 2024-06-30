@@ -1,7 +1,7 @@
 using System;
 using System.Reflection;
 
-namespace DeltaQ.CommandLineParser
+namespace DQD.CommandLineParser
 {
 	public abstract class ParameterAttribute : Attribute
 	{

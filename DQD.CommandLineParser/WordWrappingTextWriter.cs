@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace DeltaQ.CommandLineParser
+namespace DQD.CommandLineParser
 {
 	public class WordWrappingTextWriter : TextWriter
 	{

@@ -7,7 +7,7 @@ using NUnit.Framework;
 using FluentAssertions;
 using System.Reflection.Metadata.Ecma335;
 
-namespace DeltaQ.CommandLineParser.Tests
+namespace DQD.CommandLineParser.Tests
 {
 	[TestFixture]
 	public class UtilityTests

@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace DeltaQ.CommandLineParser
+namespace DQD.CommandLineParser
 {
 	public class CommandLine
 	{

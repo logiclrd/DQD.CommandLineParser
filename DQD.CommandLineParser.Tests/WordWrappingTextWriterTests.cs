@@ -5,7 +5,7 @@ using NUnit.Framework;
 
 using FluentAssertions;
 
-namespace DeltaQ.CommandLineParser.Tests
+namespace DQD.CommandLineParser.Tests
 {
 	[TestFixture]
 	public class WordWrappingTextWriterTests

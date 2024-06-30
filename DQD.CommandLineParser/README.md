@@ -1,4 +1,4 @@
-# DeltaQ.CommandLineParser
+# DQD.CommandLineParser
 
 Parses command lines. :-)
 
@@ -16,7 +16,7 @@ It finds the command-line of the current process automatically.
 
 ## How To Make Arguments Type
 
-In the world of DeltaQ.CommandLineParser, there are two kinds of thing that can be found on the command-line:
+In the world of DQD.CommandLineParser, there are two kinds of thing that can be found on the command-line:
 
 * Switches:
 
@@ -35,7 +35,7 @@ In the world of DeltaQ.CommandLineParser, there are two kinds of thing that can 
 
 * Arguments:
 
-   Arguments collect values from the command-line. The simplest argument has a `string` value. DeltaQ.CommandLineParser will try to coerce to other types as needed.
+   Arguments collect values from the command-line. The simplest argument has a `string` value. DQD.CommandLineParser will try to coerce to other types as needed.
 
     ```
     public class Arguments

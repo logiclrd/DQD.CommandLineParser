@@ -1,6 +1,6 @@
 using System;
 
-namespace DeltaQ.CommandLineParser
+namespace DQD.CommandLineParser
 {
 	public class ArgumentSource : IArgumentSource
 	{

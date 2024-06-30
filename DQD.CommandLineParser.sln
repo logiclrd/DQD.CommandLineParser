@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeltaQ.CommandLineParser", "DeltaQ.CommandLineParser\DeltaQ.CommandLineParser.csproj", "{2FD20986-3F32-4A36-ACE7-309242359C9F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DQD.CommandLineParser", "DQD.CommandLineParser\DQD.CommandLineParser.csproj", "{2FD20986-3F32-4A36-ACE7-309242359C9F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeltaQ.RTB.Tests", "DeltaQ.CommandLineParser.Tests\DeltaQ.RTB.Tests.csproj", "{D0928AB9-ED34-4F7E-81BB-764ED2D2194F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DQD.RTB.Tests", "DQD.CommandLineParser.Tests\DQD.RTB.Tests.csproj", "{D0928AB9-ED34-4F7E-81BB-764ED2D2194F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

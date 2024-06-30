@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace DeltaQ.CommandLineParser
+namespace DQD.CommandLineParser
 {
 	public static class IArgumentSourceExtensions
 	{

@@ -7,7 +7,7 @@ using Bogus;
 using FluentAssertions;
 using System.Collections.Generic;
 
-namespace DeltaQ.CommandLineParser.Tests
+namespace DQD.CommandLineParser.Tests
 {
 	[TestFixture]
 	public class PushBackArgumentSourceTests

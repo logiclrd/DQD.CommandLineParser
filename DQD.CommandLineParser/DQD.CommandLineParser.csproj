@@ -11,7 +11,7 @@
     <Authors>logiclrd</Authors>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <RepositoryUrl>https://github.com/logiclrd/DeltaQ.CommandLineParser/</RepositoryUrl>
+    <RepositoryUrl>https://github.com/logiclrd/DQD.CommandLineParser/</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>

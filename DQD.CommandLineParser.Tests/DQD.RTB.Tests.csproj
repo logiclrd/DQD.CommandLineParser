@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../DeltaQ.CommandLineParser/DeltaQ.CommandLineParser.csproj" />
+    <ProjectReference Include="../DQD.CommandLineParser/DQD.CommandLineParser.csproj" />
   </ItemGroup>
 
   <ItemGroup>

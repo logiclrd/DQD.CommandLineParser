@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace DeltaQ.CommandLineParser
+namespace DQD.CommandLineParser
 {
 	class PushBackArgumentSource : IArgumentSource
 	{

@@ -1,4 +1,4 @@
-﻿namespace DeltaQ.CommandLineParser
+﻿namespace DQD.CommandLineParser
 {
 	public interface IArgumentSource
 	{

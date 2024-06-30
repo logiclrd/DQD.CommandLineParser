@@ -1,6 +1,6 @@
 using System;
 
-namespace DeltaQ.CommandLineParser
+namespace DQD.CommandLineParser
 {
 	[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = true)]
 	public class SwitchAttribute : ParameterAttribute

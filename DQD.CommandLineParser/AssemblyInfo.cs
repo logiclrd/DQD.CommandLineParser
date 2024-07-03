@@ -1,3 +1,3 @@
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("DQD.RTB.Tests")]
+[assembly: InternalsVisibleTo("DQD.CommandLineParser.Tests")]

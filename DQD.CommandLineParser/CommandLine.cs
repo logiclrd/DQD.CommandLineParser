@@ -414,6 +414,7 @@ namespace DQD.CommandLineParser
 							writer.HangingIndent = 32;
 
 							writer.Write(argument.Description);
+							writer.Flush();
 
 							writer.HangingIndent = 8;
 

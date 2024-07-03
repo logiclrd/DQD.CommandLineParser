@@ -449,7 +449,8 @@ namespace DQD.CommandLineParser.Tests
 
 			// Assert
 			bufferWriter.ToString().Should().Be(@"usage: TestBinary [/A <value>] [/B <X> <Y>] [/C <value> [/C <value> [..]]] 
-    [/D <value>:<value>:.. [/D <value>:<value>:.. [..]]] [/E <X> <Y> [/E <X> <Y> [..]]] [/R <remainder of command-line>]
+    [/D <value>:<value>:.. [/D <value>:<value>:.. [..]]] [/E <X> <Y> [/E <X> <Y> [..]]] 
+    [/R <remainder of command-line>]
 ");
 		}
 
@@ -562,8 +563,8 @@ namespace DQD.CommandLineParser.Tests
 			// Assert
 			bufferWriter.ToString().Should().Be(
 @"usage: TestBinary [/A] [/C <value>] [/D <X> <Y>] [/B [/B [..]] [/E <value> [/E <value> [..]]] 
-    [/F <value>:<value>:.. [/F <value>:<value>:.. [..]]] [/G) <X> <Y> [/G) <X> <Y> [..]]] <First> <Second: A> 
-    <Second: B> <Third>/<Third>/.. [/R <remainder of command-line>]
+    [/F <value>:<value>:.. [/F <value>:<value>:.. [..]]] [/G) <X> <Y> [/G) <X> <Y> [..]]] <First> 
+    <Second: A> <Second: B> <Third>/<Third>/.. [/R <remainder of command-line>]
 ");
 		}
 
@@ -602,7 +603,8 @@ namespace DQD.CommandLineParser.Tests
 
 /C                              Description for the switch for C.
 
-/D                              And here is a description for the switch for D. Can be specified multiple times.
+/D                              And here is a description for the switch for D. Can be specified 
+                                multiple times.
 ");
 		}
 
@@ -646,8 +648,9 @@ namespace DQD.CommandLineParser.Tests
 			// Assert
 			bufferWriter.ToString().Should().Be(
 @"usage: TestBinary [/A <value>] [/B <X> <Y>] [/C <value> [/C <value> [..]]] 
-    [/D <value>:<value>:.. [/D <value>:<value>:.. [..]]] [/E <X> <Y> [/E <X> <Y> [..]]] [/F <value>] [/G <X> <Y>] 
-    [/H <value> [/H <value> [..]]] [/I <value>:<value>:.. [/I <value>:<value>:.. [..]]] [/J <X> <Y> [/J <X> <Y> [..]]] 
+    [/D <value>:<value>:.. [/D <value>:<value>:.. [..]]] [/E <X> <Y> [/E <X> <Y> [..]]] 
+    [/F <value>] [/G <X> <Y>] [/H <value> [/H <value> [..]]] 
+    [/I <value>:<value>:.. [/I <value>:<value>:.. [..]]] [/J <X> <Y> [/J <X> <Y> [..]]] 
     [/R <remainder of command-line>]
 
 /A <value>
@@ -667,14 +670,16 @@ namespace DQD.CommandLineParser.Tests
                                 The flag /G requires two arguments to populate X and Y.
 
 /H <value> [/H <value> [..]]
-                                The flag /H can be specified multiple times, each time with an integer value.
+                                The flag /H can be specified multiple times, each time with an 
+                                integer value.
 
 /I <value>:<value>:.. [/I <value>:<value>:.. [..]]
-                                The flag /I can receive multiple integer values separated by colon characters (:).
+                                The flag /I can receive multiple integer values separated by colon 
+                                characters (:).
 
 /J <X> <Y> [/J <X> <Y> [..]]
-                                The flag /J can be specified multiple times, and each time requires two arguments to 
-                                populate X and Y.
+                                The flag /J can be specified multiple times, and each time requires 
+                                two arguments to populate X and Y.
 
 /R <remainder of command-line>
                                 This argument gathers everything remaining on the command-line.
@@ -725,7 +730,8 @@ namespace DQD.CommandLineParser.Tests
 
 			// Assert
 			bufferWriter.ToString().Should().Be(
-@"usage: TestBinary <First> <Second: A> <Second: B> <Third>/<Third>/.. <Fourth> <Fifth: A> <Fifth: B> <Sixth>/<Sixth>/..
+@"usage: TestBinary <First> <Second: A> <Second: B> <Third>/<Third>/.. <Fourth> <Fifth: A> <Fifth: B> 
+    <Sixth>/<Sixth>/..
 
 <First>
 
@@ -740,7 +746,8 @@ namespace DQD.CommandLineParser.Tests
                                 A floating argument with two properties.
 
 <Sixth>/<Sixth>/..
-                                A floating argument of list type, using a slash as its item delimeter.
+                                A floating argument of list type, using a slash as its item 
+                                delimeter.
 ");
 		}
 
@@ -815,10 +822,11 @@ namespace DQD.CommandLineParser.Tests
 			// Assert
 			bufferWriter.ToString().Should().Be(
 @"usage: TestBinary [/A] [/C <value>] [/D <X> <Y>] [/B [/B [..]] [/E <value> [/E <value> [..]]] 
-    [/F <value>:<value>:.. [/F <value>:<value>:.. [..]]] [/G <X> <Y> [/G <X> <Y> [..]]] [/H] [/J <value>] [/K <X> <Y>] 
-    [/I [/I [..]] [/L <value> [/L <value> [..]]] [/M <value>:<value>:.. [/M <value>:<value>:.. [..]]] 
-    [/N <X> <Y> [/N <X> <Y> [..]]] <First> <Second: A> <Second: B> <Third>/<Third>/.. <Fourth> <Fifth: A> <Fifth: B> 
-    <Sixth>/<Sixth>/.. [/R <remainder of command-line>]
+    [/F <value>:<value>:.. [/F <value>:<value>:.. [..]]] [/G <X> <Y> [/G <X> <Y> [..]]] [/H] 
+    [/J <value>] [/K <X> <Y>] [/I [/I [..]] [/L <value> [/L <value> [..]]] 
+    [/M <value>:<value>:.. [/M <value>:<value>:.. [..]]] [/N <X> <Y> [/N <X> <Y> [..]]] <First> 
+    <Second: A> <Second: B> <Third>/<Third>/.. <Fourth> <Fifth: A> <Fifth: B> <Sixth>/<Sixth>/.. 
+    [/R <remainder of command-line>]
 
 /A
 
@@ -842,17 +850,20 @@ namespace DQD.CommandLineParser.Tests
 /K <X> <Y>
                                 The flag /G requires two arguments to populate X and Y.
 
-/I                              And here is a description for the switch for I. Can be specified multiple times.
+/I                              And here is a description for the switch for I. Can be specified 
+                                multiple times.
 
 /L <value> [/L <value> [..]]
-                                The flag /H can be specified multiple times, each time with an integer value.
+                                The flag /H can be specified multiple times, each time with an 
+                                integer value.
 
 /M <value>:<value>:.. [/M <value>:<value>:.. [..]]
-                                The flag /I can receive multiple integer values separated by colon characters (:).
+                                The flag /I can receive multiple integer values separated by colon 
+                                characters (:).
 
 /N <X> <Y> [/N <X> <Y> [..]]
-                                The flag /J can be specified multiple times, and each time requires two arguments to 
-                                populate X and Y.
+                                The flag /J can be specified multiple times, and each time requires 
+                                two arguments to populate X and Y.
 
 /R <remainder of command-line>
                                 This argument gathers everything remaining on the command-line.
@@ -870,7 +881,8 @@ namespace DQD.CommandLineParser.Tests
                                 A floating argument with two properties.
 
 <Sixth>/<Sixth>/..
-                                A floating argument of list type, using a slash as its item delimeter.
+                                A floating argument of list type, using a slash as its item 
+                                delimeter.
 ");
 		}
 
@@ -890,10 +902,11 @@ namespace DQD.CommandLineParser.Tests
 			// Assert
 			bufferWriter.ToString().Should().Be(
 @"usage: TestBinary [/A] [/B [/B [..]] [/C <value>] [/D <X> <Y>] [/E <value> [/E <value> [..]]] 
-    [/F <value>:<value>:.. [/F <value>:<value>:.. [..]]] [/G <X> <Y> [/G <X> <Y> [..]]] [/H] [/I [/I [..]] [/J <value>] 
-    [/K <X> <Y>] [/L <value> [/L <value> [..]]] [/M <value>:<value>:.. [/M <value>:<value>:.. [..]]] 
-    [/N <X> <Y> [/N <X> <Y> [..]]] <First> <Second: A> <Second: B> <Third>/<Third>/.. <Fourth> <Fifth: A> <Fifth: B> 
-    <Sixth>/<Sixth>/.. [/R <remainder of command-line>]
+    [/F <value>:<value>:.. [/F <value>:<value>:.. [..]]] [/G <X> <Y> [/G <X> <Y> [..]]] [/H] 
+    [/I [/I [..]] [/J <value>] [/K <X> <Y>] [/L <value> [/L <value> [..]]] 
+    [/M <value>:<value>:.. [/M <value>:<value>:.. [..]]] [/N <X> <Y> [/N <X> <Y> [..]]] <First> 
+    <Second: A> <Second: B> <Third>/<Third>/.. <Fourth> <Fifth: A> <Fifth: B> <Sixth>/<Sixth>/.. 
+    [/R <remainder of command-line>]
 
 /A
 
@@ -911,7 +924,8 @@ namespace DQD.CommandLineParser.Tests
 
 /H                              Description for the switch for H.
 
-/I                              And here is a description for the switch for I. Can be specified multiple times.
+/I                              And here is a description for the switch for I. Can be specified 
+                                multiple times.
 
 /J <value>
                                 And here we have the flag /K, which can be either True or False.
@@ -920,14 +934,16 @@ namespace DQD.CommandLineParser.Tests
                                 The flag /G requires two arguments to populate X and Y.
 
 /L <value> [/L <value> [..]]
-                                The flag /H can be specified multiple times, each time with an integer value.
+                                The flag /H can be specified multiple times, each time with an 
+                                integer value.
 
 /M <value>:<value>:.. [/M <value>:<value>:.. [..]]
-                                The flag /I can receive multiple integer values separated by colon characters (:).
+                                The flag /I can receive multiple integer values separated by colon 
+                                characters (:).
 
 /N <X> <Y> [/N <X> <Y> [..]]
-                                The flag /J can be specified multiple times, and each time requires two arguments to 
-                                populate X and Y.
+                                The flag /J can be specified multiple times, and each time requires 
+                                two arguments to populate X and Y.
 
 /R <remainder of command-line>
                                 This argument gathers everything remaining on the command-line.
@@ -945,7 +961,8 @@ namespace DQD.CommandLineParser.Tests
                                 A floating argument with two properties.
 
 <Sixth>/<Sixth>/..
-                                A floating argument of list type, using a slash as its item delimeter.
+                                A floating argument of list type, using a slash as its item 
+                                delimeter.
 ");
 		}
 	}

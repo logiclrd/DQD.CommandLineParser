@@ -36,6 +36,13 @@ namespace DQD.CommandLineParser
 			UnrecognizedArgument(null, arg);
 		}
 
+		static string GetDotNetCommandForSelf()
+		{
+			return "dotnet " + Assembly.GetEntryAssembly()!.Location;
+		}
+
+		static readonly char[] SpaceCharacter = [' '];
+
 		public TArgs Parse<TArgs>(IEnumerable<string> args)
 			where TArgs : new()
 		{
@@ -55,6 +62,51 @@ namespace DQD.CommandLineParser
 			while (source.HasNext())
 			{
 				var arg = source.Pull();
+
+				if (source.HasNext())
+				{
+					if ((configuration.CompleterArgument != null)
+					 && configuration.CompleterArgument.Switch!.Equals(arg, StringComparison.OrdinalIgnoreCase))
+					{
+						string prefix = source.Pull();
+						var precedingWords = new List<string>();
+
+						while (source.HasNext())
+							precedingWords.AddRange(source.Pull().Split(SpaceCharacter, StringSplitOptions.RemoveEmptyEntries));
+
+						foreach (var completionOption in Completion.Perform(configuration, prefix, precedingWords))
+							Console.Out.WriteLine(completionOption);
+
+						Console.Out.Flush();
+
+						Environment.Exit(0);
+					}
+
+					if ((configuration.CompleterArgument?.Switch is string completerSwitch)
+					 && (configuration.RegisterCompleterArgument != null)
+					 && configuration.RegisterCompleterArgument.Switch!.Equals(arg, StringComparison.OrdinalIgnoreCase))
+					{
+						string shellTypeString = source.Pull();
+
+						if (!Enum.TryParse<ShellType>(shellTypeString, ignoreCase: true, out var shellType))
+						{
+							Console.Error.WriteLine("unknown shell type: {0}", shellTypeString);
+							Console.Error.Flush();
+
+							Environment.Exit(99);
+						}
+						else
+						{
+							string command = configuration.RegisterCompleterArgument.CommandName ?? GetDotNetCommandForSelf();
+							string registration = Completion.GenerateRegistration(shellType, command, configuration);
+
+							Console.Out.WriteLine(registration);
+							Console.Out.Flush();
+
+							Environment.Exit(0);
+						}
+					}
+				}
 
 				if (configuration.Switches.TryGetValue(arg, out var switchAttribute)
 				 || (configuration.Switches.TryGetValue(arg.ToLower(), out switchAttribute) && !switchAttribute.IsCaseSensitive))

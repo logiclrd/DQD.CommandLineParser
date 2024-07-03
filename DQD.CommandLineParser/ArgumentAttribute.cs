@@ -14,6 +14,10 @@ namespace DQD.CommandLineParser
 		public string[]? Properties { get; set; }
 		public string? MultipleItemDelimiters { get; set; }
 
+		public bool CompleteFiles { get; set; }
+		public bool CompleteDirectories { get; set; }
+		public string[]? CompleteWith { get; set; }
+
 		internal char[]? DelimiterChars;
 
 		internal string? FloatingArgumentName;

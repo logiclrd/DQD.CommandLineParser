@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DQD.CommandLineParser", "DQ
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DQD.CommandLineParser.Tests", "DQD.CommandLineParser.Tests\DQD.CommandLineParser.Tests.csproj", "{D0928AB9-ED34-4F7E-81BB-764ED2D2194F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DQD.CommandLineParser.Sample", "DQD.CommandLineParser.Sample\DQD.CommandLineParser.Sample.csproj", "{7967AC8B-8C44-4C85-ABFF-D2E4471E8FEC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{D0928AB9-ED34-4F7E-81BB-764ED2D2194F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D0928AB9-ED34-4F7E-81BB-764ED2D2194F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D0928AB9-ED34-4F7E-81BB-764ED2D2194F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7967AC8B-8C44-4C85-ABFF-D2E4471E8FEC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7967AC8B-8C44-4C85-ABFF-D2E4471E8FEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7967AC8B-8C44-4C85-ABFF-D2E4471E8FEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7967AC8B-8C44-4C85-ABFF-D2E4471E8FEC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

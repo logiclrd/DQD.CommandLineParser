@@ -12,6 +12,9 @@ namespace DQD.CommandLineParser
 		public List<ArgumentAttribute> FloatingArguments = new List<ArgumentAttribute>();
 		public List<ParameterAttribute> AllParameters = new List<ParameterAttribute>();
 
+		public CompleterAttribute? CompleterArgument;
+		public RegisterCompleterAttribute? RegisterCompleterArgument;
+
 		public static Configuration Collect(Type type)
 		{
 			var configuration = new Configuration();
@@ -40,74 +43,89 @@ namespace DQD.CommandLineParser
 						}
 						else if (attribute is ParameterAttribute parameterAttribute)
 						{
-							configuration.AllParameters.Add(parameterAttribute);
-
-							parameterAttribute.IsListType = IsListType(memberType);
-							parameterAttribute.AttachedToMember = memberInfo;
-
-							if (parameterAttribute is SwitchAttribute switchAttribute)
+							if (parameterAttribute is CompleterAttribute completerAttribute)
 							{
-								if (string.IsNullOrEmpty(switchAttribute.Switch))
-									switchAttribute.Switch = "/" + memberInfo.Name;
-
-								if (memberType == typeof(int))
-									switchAttribute.IsCounter = true;
-								else if (memberType != typeof(bool))
-									throw new Exception("A [Switch] may only be applied to System.Int32 or System.Boolean fields or properties.");
-
-								configuration.Switches[switchAttribute.EffectiveSwitch] = switchAttribute;
+								if (!string.IsNullOrWhiteSpace(completerAttribute.Switch)
+							   && (memberType == typeof(string)))
+									configuration.CompleterArgument = completerAttribute;
 							}
-
-							if (parameterAttribute is ArgumentAttribute argumentAttribute)
+							else if (parameterAttribute is RegisterCompleterAttribute registerCompleterAttribute)
 							{
-								if (string.IsNullOrEmpty(argumentAttribute.Switch) && !argumentAttribute.IsFloating)
-									argumentAttribute.Switch = "/" + memberInfo.Name;
+								if (!string.IsNullOrWhiteSpace(registerCompleterAttribute.Switch)
+							   && (memberType == typeof(ShellType)))
+									configuration.RegisterCompleterArgument = registerCompleterAttribute;
+							}
+							else
+							{
+								configuration.AllParameters.Add(parameterAttribute);
 
-								if (argumentAttribute.IsFloating)
-									argumentAttribute.FloatingArgumentName = memberInfo.Name;
+								parameterAttribute.IsListType = IsListType(memberType);
+								parameterAttribute.AttachedToMember = memberInfo;
 
-								if (argumentAttribute.IsRemainder)
+								if (parameterAttribute is SwitchAttribute switchAttribute)
 								{
-									if (argumentAttribute.HasProperties)
-										throw new Exception("An [Argument(IsRemainder = true)] cannot specify properties to assign.");
+									if (string.IsNullOrEmpty(switchAttribute.Switch))
+										switchAttribute.Switch = "/" + memberInfo.Name;
+
+									if (memberType == typeof(int))
+										switchAttribute.IsCounter = true;
+									else if (memberType != typeof(bool))
+										throw new Exception("A [Switch] may only be applied to System.Int32 or System.Boolean fields or properties.");
+
+									configuration.Switches[switchAttribute.EffectiveSwitch] = switchAttribute;
+								}
+
+								if (parameterAttribute is ArgumentAttribute argumentAttribute)
+								{
+									if (string.IsNullOrEmpty(argumentAttribute.Switch) && !argumentAttribute.IsFloating)
+										argumentAttribute.Switch = "/" + memberInfo.Name;
 
 									if (argumentAttribute.IsFloating)
-										throw new Exception("The IsRemainder and IsFloating argument attribute options may not be combined.");
+										argumentAttribute.FloatingArgumentName = memberInfo.Name;
 
-									if (memberType != typeof(string))
-										throw new Exception("An [Argument(IsRemainder = true)] may only be applied to System.String fields or properties.");
-								}
-
-								if (!string.IsNullOrEmpty(argumentAttribute.MultipleItemDelimiters))
-								{
-									if (!parameterAttribute.IsListType)
-										throw new Exception("An [Argument(MultipleItemDelimiters = ...)] may only be applied to fields and properties of list type.");
-
-									if (argumentAttribute.HasProperties)
-										throw new Exception("An [Argument] attribute may not combine the MultipleItemDelimiters and Properties specifications.");
-
-									argumentAttribute.DelimiterChars = argumentAttribute.MultipleItemDelimiters.ToCharArray();
-								}
-
-								if (!argumentAttribute.IsFloating)
-									configuration.Arguments[argumentAttribute.EffectiveSwitch] = argumentAttribute;
-								else
-								{
-									if (argumentAttribute.IsListType)
+									if (argumentAttribute.IsRemainder)
 									{
-										if (!argumentAttribute.HasDelimiterChars)
-											throw new Exception("A floating argument of list type must specify delimiter characters.");
 										if (argumentAttribute.HasProperties)
-											throw new Exception("A floating argument of list type may not specify properties to fill.");
+											throw new Exception("An [Argument(IsRemainder = true)] cannot specify properties to assign.");
+
+										if (argumentAttribute.IsFloating)
+											throw new Exception("The IsRemainder and IsFloating argument attribute options may not be combined.");
+
+										if (memberType != typeof(string))
+											throw new Exception("An [Argument(IsRemainder = true)] may only be applied to System.String fields or properties.");
 									}
 
-									if (!string.IsNullOrEmpty(argumentAttribute.Switch))
-										throw new Exception("Cannot specify a switch for a floating argument.");
+									if (!string.IsNullOrEmpty(argumentAttribute.MultipleItemDelimiters))
+									{
+										if (!parameterAttribute.IsListType)
+											throw new Exception("An [Argument(MultipleItemDelimiters = ...)] may only be applied to fields and properties of list type.");
 
-									if (string.IsNullOrEmpty(argumentAttribute.ShortName))
-										argumentAttribute.ShortName = memberInfo.Name;
+										if (argumentAttribute.HasProperties)
+											throw new Exception("An [Argument] attribute may not combine the MultipleItemDelimiters and Properties specifications.");
 
-									configuration.FloatingArguments.Add(argumentAttribute);
+										argumentAttribute.DelimiterChars = argumentAttribute.MultipleItemDelimiters.ToCharArray();
+									}
+
+									if (!argumentAttribute.IsFloating)
+										configuration.Arguments[argumentAttribute.EffectiveSwitch] = argumentAttribute;
+									else
+									{
+										if (argumentAttribute.IsListType)
+										{
+											if (!argumentAttribute.HasDelimiterChars)
+												throw new Exception("A floating argument of list type must specify delimiter characters.");
+											if (argumentAttribute.HasProperties)
+												throw new Exception("A floating argument of list type may not specify properties to fill.");
+										}
+
+										if (!string.IsNullOrEmpty(argumentAttribute.Switch))
+											throw new Exception("Cannot specify a switch for a floating argument.");
+
+										if (string.IsNullOrEmpty(argumentAttribute.ShortName))
+											argumentAttribute.ShortName = memberInfo.Name;
+
+										configuration.FloatingArguments.Add(argumentAttribute);
+									}
 								}
 							}
 						}

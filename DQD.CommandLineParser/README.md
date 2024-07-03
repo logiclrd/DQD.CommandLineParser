@@ -80,3 +80,26 @@ By default, arguments come from the current process's `argv`. You can override t
 
 * The `Parse` method can be supplied an `IEnumerable<string>`.
 * The `CommandLine` object can persist an `IEnumerable<string>` to use in place of the default argument list. This is done by calling the `SetArgumentData` method.
+
+## Autocompletion
+
+Most shells have autocompletion, where if you type part of a filename or keyword and press Tab, the rest is filled in for you. Some shells allow you to hook into and customize this functionality.
+
+DQD.CommandLineParser supports doing this for you automatically in PowerShell and Bash.
+
+To use this in your own program, you must define two arguments in your args type:
+
+```
+		[Completer("--complete")]
+		public string? Complete;
+		[RegisterCompleter("--registercompleter", CommandName = "DQD.CommandLineParser.Sample")]
+		public ShellType RegisterForShell;
+```
+
+The members can be fields or properties, and they can be named whatever you want. The exact switches can be whatever you want as well. They simply have to exist.
+
+With these defined, running your application and using the switch supplied to `RegisterCompleter` will emit the shell code that needs to be sourced to complete registration.
+
+The completion assumes that you will be using the stub executable that provides a direct binary for executing your application. This is a file called e.g. `MyProject.exe`, or simply `MyProject` on UNIX systems, in the build output directory.
+
+The only constraint is that your application must not do anything significant prior to its call to `CommandLine.Parse<T>`. This is because invocations of the application are used to obtain completion options as the command-line is being built up.
